@@ -1,8 +1,6 @@
 const {ORIENTATIONS, ROBOT_STATUSES, COMMANDS} = require('./values');
 const {debug} = require('./utils');
 
-
-
 /**
  * Class representing a robot.
  */
@@ -12,7 +10,7 @@ class Robot {
    * @param {number} id - The unique identifier of the robot.
    * @param {number} startX - The starting x coordinate of the robot.
    * @param {number} startY - The starting y coordinate of the robot.
-   * @param {Orientations} startOrientation - The starting orientation of the robot.
+   * @param {string} startOrientation - The starting orientation of the robot.
    */
   constructor(id, startX, startY, startOrientation) {
     this.id = id;
@@ -24,8 +22,8 @@ class Robot {
     };
 
     /**
-     * Maps each orientation to a new map that contains the rotations commands and the resulting orientations.
-     * @type {Map<Orientations, Map<Commands, Orientations>>}
+     * Maps each orientation to a new map that contains the rotation commands and the resulting orientations.
+     * @type {Map<string, Map<string, string>>}
      */
     this.orientationMap = new Map([
       [ORIENTATIONS.NORTH, new Map([
@@ -54,7 +52,7 @@ class Robot {
      * @returns {{state: Object, result: Object}}
      *
      * Contains all the available commands for the robot and the handlers that update its state.
-     * @type {{[Commands]: commandCallback}}
+     * @type {{[string]: commandCallback}}
      */
     this.commands = {
       [COMMANDS.ROTATE_LEFT]: (state, input, thisRobot) => {
@@ -126,7 +124,7 @@ class Robot {
 
   /**
    * Executes a single command and returns the result if any.
-   * @param {Commands} command - The command to execute.
+   * @param {string} command - The command to execute.
    * @param {Object} input - Arbitrary input passed down into the command execution handler.
    * @returns {Object}
    */
@@ -138,7 +136,7 @@ class Robot {
 
   /**
    * Executes a sequence of commands and returns their results.
-   * @param {Array<Commands>} instructions - The instructions to execute.
+   * @param {Array<string>} instructions - The instructions to execute.
    * @param {Object} input - Arbitrary input passed down into the command execution handler.
    * @returns {Array<Object>}
    */
@@ -162,7 +160,7 @@ class Robot {
    * Helper method that returns a new position (x, y) based on the current position and the orientation provided.
    * @param {number} x - The current x coordinate.
    * @param {number} y - The current y coordinate.
-   * @param {Orientations} orientation - The current orientation.
+   * @param {string} orientation - The current orientation.
    * @returns {{x: number, y: number}}
    */
   moveForward(x, y, orientation) {
@@ -185,7 +183,6 @@ class Robot {
       default:
         throw new Error('Unknown orientation.');
     }
-
     return {x: newX, y: newY};
   };
 

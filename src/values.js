@@ -1,17 +1,17 @@
 /**
  * Enum for the available orientations.
- * @type {{Orientations}}
+ * @type {Object<string>}
  */
 const ORIENTATIONS = {
   NORTH:'N',
   EAST:'E',
   SOUTH:'S',
-  WEST:'W'
+  WEST:'W',
 };
 
 /**
  * Enum for the available commands.
- * @type {{Commands}}
+ * @type {Object<string>}
  */
 const COMMANDS = {
   ROTATE_LEFT: 'L',
@@ -21,7 +21,7 @@ const COMMANDS = {
 
 /**
  * Enum for the available robot statuses.
- * @type {{Robot_Statuses}}
+ * @type {Object<string>}
  */
 const ROBOT_STATUSES = {
   OK: 'OK',
