@@ -30,16 +30,16 @@ New commands can be added to the system by updating the code in [robot.commands]
 commands in the [COMMANDS](./src/values.js#L16) enumeration. Also, commands can be added programmatically by updating
 those objects during runtime.
 
-The solution also contains unit tests for the fileReader and robot code under [test](./test). The tests make use of
-the following libraries: 
+The solution also contains unit tests for the [fileReader](./test/src/fileReader.test.js) and [robot](./test/src/robot.test.js)
+code under [test](./test). The tests make use of the following libraries: 
 - [mocha](https://mochajs.org/): Test runner
 - [chai](http://chaijs.com/): Assertion library
 - [sinon.js](http://sinonjs.org/): Spy, Stub and Mocking library
 
 ## Instructions
-The application itself does not require any dependencies. As such you do not need to do `yarn install` or `npm install`
+The application itself does not require any dependencies. As such, you do not need to do `yarn install` or `npm install`
 before running. In order to execute the solution you can use `yarn start` or `npm start`. If you want to run it in debug
 mode, where you can see extra output for each operation taken by the robots, use `yarn run debug` or `npm run debug`.
 
-In order to execute the unit tests you will need to install the dev dependencies by using the commands stated before. In
-order to run the tests use `yarn test` or `npm test`.
+In order to execute the unit tests you will need to install the dev dependencies by using the commands stated before.
+You can run the tests by using `yarn test` or `npm test`.
