@@ -1,7 +1,7 @@
 const fs = require('fs');
+const {debug} = require('./utils');
 
 let promiseReadFile = (path, options) => {
-  console.log(path);
   return new Promise((resolve, reject) => {
     fs.readFile(path, options, (err, data) => {
       if(err) reject(err);
@@ -19,7 +19,9 @@ async function parseInputFile(path) {
   return data.split('\n').reduce((acc, curr, index) => {
     if(curr.trim().length > 0) {
       if(index === 0) {
+        debug('Checking first row.');
         if(/([0-9]|[1-4][0-9])\s([0-9]|[1-4][0-9])/g.test(curr)) {
+          debug(`First row is valid: ${curr}`);
           const maxSize = curr.split(' ');
           acc.worldWidth = Number(maxSize[0]);
           acc.worldHeight = Number(maxSize[1]);
@@ -29,7 +31,9 @@ async function parseInputFile(path) {
         }
       } else {
         if(index % 2 !== 0) {
+          debug(`Checking robot row: ${index}`);
           if(/([0-9]|[1-4][0-9])\s([0-9]|[1-4][0-9])\s[NEWS]/g.test(curr)) {
+            debug(`Robot row is valid: ${curr}`);
             const robot = curr.split(' ');
             acc.robots.push({
               startX: Number(robot[0]),
@@ -41,7 +45,9 @@ async function parseInputFile(path) {
             throw new Error(`Invalid robot position format in line ${index}: ${curr}`);
           }
         } else {
+          debug(`Checking instruction row: ${index}`);
           if(/^[LRF]{1,100}$/g.test(curr)) {
+            debug(`Instruction row is valid: ${curr}`);
             acc.instructions.push(curr.split(''));
             return acc;
           } else {
