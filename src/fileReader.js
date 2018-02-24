@@ -1,12 +1,17 @@
 const fs = require('fs');
 
-const promiseReadFile = (path, options) => {
+let promiseReadFile = (path, options) => {
+  console.log(path);
   return new Promise((resolve, reject) => {
     fs.readFile(path, options, (err, data) => {
       if(err) reject(err);
       else resolve(data);
     });
   });
+};
+
+const initializeReadFileHandler = (handler) => {
+  promiseReadFile = handler;
 };
 
 async function parseInputFile(path) {
@@ -36,7 +41,7 @@ async function parseInputFile(path) {
             throw new Error(`Invalid robot position format in line ${index}: ${curr}`);
           }
         } else {
-          if(/[LRF]{1,100}/g.test(curr)) {
+          if(/^[LRF]{1,100}$/g.test(curr)) {
             acc.instructions.push(curr.split(''));
             return acc;
           } else {
@@ -51,6 +56,6 @@ async function parseInputFile(path) {
 }
 
 module.exports = {
-  promiseReadFile,
+  initializeReadFileHandler,
   parseInputFile
 };
