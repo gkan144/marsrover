@@ -11,9 +11,13 @@ const COMMANDS = {
   ROTATE_RIGHT: 'R'
 };
 
-
+const ROBOT_STATUSES = {
+  OK: 'OK',
+  LOST: 'LOST'
+};
 
 module.exports = {
   ORIENTATIONS,
-  COMMANDS
+  COMMANDS,
+  ROBOT_STATUSES
 };
