@@ -39,7 +39,8 @@ class Robot {
           state: {
             ...state,
             orientation: newOrientation
-          }
+          },
+          result: input
         }
       },
       [COMMANDS.ROTATE_RIGHT]: (state, input, thisRobot) => {
@@ -49,34 +50,38 @@ class Robot {
           state: {
             ...state,
             orientation: newOrientation
-          }
+          },
+          result: input
         };
       },
       [COMMANDS.MOVE_FORWARD]: (state, input) => {
         const {scents} = input;
         const currentPositionForScentSearch = `${state.x}${state.y}${state.orientation}`;
 
-        debug(`Robot ${this.state.id}: Checking if my position and orientation have a scent.`);
+        debug(`Robot ${state.id}: Checking if my position and orientation have a scent.`);
         if(!scents.has(currentPositionForScentSearch)) {
-          debug(`Robot ${this.state.id}: They do not.`);
+          debug(`Robot ${state.id}: They do not.`);
           const {maxWidth, maxHeight} = input;
           const result = {scents};
           const newState = {
             ...state,
             ...this.moveForward(state.x, state.y, state.orientation)
           };
-          debug(`Robot ${this.state.id}: Moved to (${newState.x},${newState.y}).`);
+          debug(`Robot ${state.id}: Moved from (${state.x},${state.y}) to (${newState.x},${newState.y}).`);
 
-          debug(`Robot ${this.state.id}: Checking if I have gone out of bounds.`);
+          debug(`Robot ${state.id}: Checking if I have gone out of bounds.`);
           if(
             (newState.x > maxWidth) || (newState.x < 0) ||
             (newState.y > maxHeight) || (newState.y < 0)
           ) {
-            debug(`Robot ${this.state.id}: I have.`);
+            debug(`Robot ${state.id}: I have. Moving back and leaving scent.`);
             result.scents = scents.set(currentPositionForScentSearch, true);
+            newState.x = state.x;
+            newState.y = state.y;
+            newState.orientation = state.orientation;
             newState.status = ROBOT_STATUSES.LOST
           } else {
-            debug(`Robot ${this.state.id}: I have not.`);
+            debug(`Robot ${state.id}: I have not.`);
           }
 
           return {
@@ -84,8 +89,11 @@ class Robot {
             result
           }
         } else {
-          debug(`Robot ${this.state.id}: They do. Not moving.`);
-          return {state}
+          debug(`Robot ${state.id}: They do. Skipping command.`);
+          return {
+            state,
+            result: input
+          }
         }
       }
     };
@@ -95,6 +103,22 @@ class Robot {
     const {state: newState, result} = this.commands[command](this.state, input, this);
     this.state = newState;
     return result;
+  }
+
+  executeInstructions(instructions, input) {
+    let results = [];
+    debug(`Robot ${this.state.id}: Preparing to execute instructions: ${instructions}`);
+    let currCmdIndex = 0;
+    while(this.state.status === ROBOT_STATUSES.OK && currCmdIndex < instructions.length) {
+      const command = instructions[currCmdIndex];
+      debug(`Robot ${this.state.id}: Executing command: ${command}`);
+      results.push(this.executeCommand(command, input));
+      currCmdIndex += 1;
+    }
+    if(this.state.status !== ROBOT_STATUSES.OK) debug(`Robot ${this.state.id}: Stopped executing instructions due to damage.`);
+    else debug(`Robot ${this.state.id}: I have finished this instruction set.`);
+
+    return results;
   }
 
   moveForward(x, y, orientation) {
