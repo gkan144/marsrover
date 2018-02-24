@@ -33,7 +33,7 @@ describe('Robot', function() {
         isCommandAvailable.should.be.true;
       });
     });
-    it('should a include a left rotation handler that rotates left', function() {
+    it('should include a left rotation handler that rotates left and does not move from the grid point', function() {
       const robot = new Robot(999, 0, 0, ORIENTATIONS.NORTH);
       robot.orientationMap = new Map([
         [ORIENTATIONS.NORTH, new Map([
@@ -41,9 +41,9 @@ describe('Robot', function() {
         ])]
       ]);
       const {state} = robot.commands[COMMANDS.ROTATE_LEFT](robot.state, {}, robot);
-      state.orientation.should.be.equal(ORIENTATIONS.SOUTH);
+      state.should.deep.include({x:0, y:0, orientation: ORIENTATIONS.SOUTH});
     });
-    it('should a include a right rotation handler that rotates right', function() {
+    it('should a include a right rotation handler that rotates right and does not move from the grid point', function() {
       const robot = new Robot(999, 0, 0, ORIENTATIONS.NORTH);
       robot.orientationMap = new Map([
         [ORIENTATIONS.NORTH, new Map([
@@ -51,7 +51,7 @@ describe('Robot', function() {
         ])]
       ]);
       const {state} = robot.commands[COMMANDS.ROTATE_RIGHT](robot.state, {}, robot);
-      state.orientation.should.be.equal(ORIENTATIONS.WEST);
+      state.should.deep.include({x:0, y:0, orientation: ORIENTATIONS.WEST});
     });
     describe('Move_forward default handler', function () {
       it('should have a move forward helper that moves forward correctly based on orientation', function() {
