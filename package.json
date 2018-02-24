@@ -4,6 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
+    "debug": "DEBUG=true node app.js",
     "start": "node app.js",
     "test": "mocha --recursive --full-trace --ui bdd --check-leaks"
   },
