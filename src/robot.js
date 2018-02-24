@@ -1,17 +1,32 @@
 const {ORIENTATIONS, ROBOT_STATUSES, COMMANDS} = require('./values');
 const {debug} = require('./utils');
 
-class Robot {
 
+
+/**
+ * Class representing a robot.
+ */
+class Robot {
+  /**
+   * Creates a Robot.
+   * @param {number} id - The unique identifier of the robot.
+   * @param {number} startX - The starting x coordinate of the robot.
+   * @param {number} startY - The starting y coordinate of the robot.
+   * @param {Orientations} startOrientation - The starting orientation of the robot.
+   */
   constructor(id, startX, startY, startOrientation) {
+    this.id = id;
     this.state = {
-      id: id,
       x: startX,
       y: startY,
       orientation: startOrientation,
       status: ROBOT_STATUSES.OK
     };
 
+    /**
+     * Maps each orientation to a new map that contains the rotations commands and the resulting orientations.
+     * @type {Map<Orientations, Map<Commands, Orientations>>}
+     */
     this.orientationMap = new Map([
       [ORIENTATIONS.NORTH, new Map([
         [COMMANDS.ROTATE_LEFT, ORIENTATIONS.WEST],
@@ -31,10 +46,20 @@ class Robot {
       ])]
     ]);
 
+    /**
+     * @callback commandCallback
+     * @param {{x: number, y: number, orientation: string, status: string}} state - The state of the robot.
+     * @param {Object} input - Arbitrary input passed down into the handler.
+     * @param {Object} thisRobot - this robot.
+     * @returns {{state: Object, result: Object}}
+     *
+     * Contains all the available commands for the robot and the handlers that update its state.
+     * @type {{[Commands]: commandCallback}}
+     */
     this.commands = {
       [COMMANDS.ROTATE_LEFT]: (state, input, thisRobot) => {
         const newOrientation = thisRobot.orientationMap.get(state.orientation).get(COMMANDS.ROTATE_LEFT);
-        debug(`Robot ${state.id}: Rotating Left from ${state.orientation} to ${newOrientation}`);
+        debug(`Robot ${thisRobot.id}: Rotating Left from ${state.orientation} to ${newOrientation}`);
         return {
           state: {
             ...state,
@@ -45,7 +70,7 @@ class Robot {
       },
       [COMMANDS.ROTATE_RIGHT]: (state, input, thisRobot) => {
         const newOrientation = thisRobot.orientationMap.get(state.orientation).get(COMMANDS.ROTATE_RIGHT);
-        debug(`Robot ${state.id}: Rotating Right from ${state.orientation} to ${newOrientation}`);
+        debug(`Robot ${thisRobot.id}: Rotating Right from ${state.orientation} to ${newOrientation}`);
         return {
           state: {
             ...state,
@@ -54,34 +79,34 @@ class Robot {
           result: input
         };
       },
-      [COMMANDS.MOVE_FORWARD]: (state, input) => {
+      [COMMANDS.MOVE_FORWARD]: (state, input, thisRobot) => {
         const {scents} = input;
         const currentPositionForScentSearch = `${state.x}${state.y}${state.orientation}`;
 
-        debug(`Robot ${state.id}: Checking if my position and orientation have a scent.`);
+        debug(`Robot ${thisRobot.id}: Checking if my position and orientation have a scent.`);
         if(!scents.has(currentPositionForScentSearch)) {
-          debug(`Robot ${state.id}: They do not.`);
+          debug(`Robot ${thisRobot.id}: They do not.`);
           const {maxWidth, maxHeight} = input;
           const result = {scents};
           const newState = {
             ...state,
             ...this.moveForward(state.x, state.y, state.orientation)
           };
-          debug(`Robot ${state.id}: Moved from (${state.x},${state.y}) to (${newState.x},${newState.y}).`);
+          debug(`Robot ${thisRobot.id}: Moved from (${state.x},${state.y}) to (${newState.x},${newState.y}).`);
 
-          debug(`Robot ${state.id}: Checking if I have gone out of bounds.`);
+          debug(`Robot ${thisRobot.id}: Checking if I have gone out of bounds.`);
           if(
             (newState.x > maxWidth) || (newState.x < 0) ||
             (newState.y > maxHeight) || (newState.y < 0)
           ) {
-            debug(`Robot ${state.id}: I have. Moving back and leaving scent.`);
+            debug(`Robot ${thisRobot.id}: I have. Moving back and leaving scent.`);
             result.scents = scents.set(currentPositionForScentSearch, true);
             newState.x = state.x;
             newState.y = state.y;
             newState.orientation = state.orientation;
             newState.status = ROBOT_STATUSES.LOST
           } else {
-            debug(`Robot ${state.id}: I have not.`);
+            debug(`Robot ${thisRobot.id}: I have not.`);
           }
 
           return {
@@ -89,7 +114,7 @@ class Robot {
             result
           }
         } else {
-          debug(`Robot ${state.id}: They do. Skipping command.`);
+          debug(`Robot ${thisRobot.id}: They do. Skipping command.`);
           return {
             state,
             result: input
@@ -99,28 +124,47 @@ class Robot {
     };
   }
 
+  /**
+   * Executes a single command and returns the result if any.
+   * @param {Commands} command - The command to execute.
+   * @param {Object} input - Arbitrary input passed down into the command execution handler.
+   * @returns {Object}
+   */
   executeCommand(command, input) {
     const {state: newState, result} = this.commands[command](this.state, input, this);
     this.state = newState;
     return result;
   }
 
+  /**
+   * Executes a sequence of commands and returns their results.
+   * @param {Array<Commands>} instructions - The instructions to execute.
+   * @param {Object} input - Arbitrary input passed down into the command execution handler.
+   * @returns {Array<Object>}
+   */
   executeInstructions(instructions, input) {
     let results = [];
-    debug(`Robot ${this.state.id}: Preparing to execute instructions: ${instructions}`);
+    debug(`Robot ${this.id}: Preparing to execute instructions: ${instructions}`);
     let currCmdIndex = 0;
     while(this.state.status === ROBOT_STATUSES.OK && currCmdIndex < instructions.length) {
       const command = instructions[currCmdIndex];
-      debug(`Robot ${this.state.id}: Executing command: ${command}`);
+      debug(`Robot ${this.id}: Executing command: ${command}`);
       results.push(this.executeCommand(command, input));
       currCmdIndex += 1;
     }
-    if(this.state.status !== ROBOT_STATUSES.OK) debug(`Robot ${this.state.id}: Stopped executing instructions due to damage.`);
-    else debug(`Robot ${this.state.id}: I have finished this instruction set.`);
+    if(this.state.status !== ROBOT_STATUSES.OK) debug(`Robot ${this.id}: Stopped executing instructions due to damage.`);
+    else debug(`Robot ${this.id}: I have finished this instruction set.`);
 
     return results;
   }
 
+  /**
+   * Helper method that returns a new position (x, y) based on the current position and the orientation provided.
+   * @param {number} x - The current x coordinate.
+   * @param {number} y - The current y coordinate.
+   * @param {Orientations} orientation - The current orientation.
+   * @returns {{x: number, y: number}}
+   */
   moveForward(x, y, orientation) {
     let newX = x;
     let newY = y;
@@ -146,7 +190,7 @@ class Robot {
   };
 
   toString() {
-    return `Robot ${this.state.id} Position: (${this.state.x},${this.state.y}) looking ${this.state.orientation} Status: ${this.state.status}`
+    return `Robot ${this.id} Position: (${this.state.x},${this.state.y}) looking ${this.state.orientation} Status: ${this.state.status}`
   }
 }
 

@@ -1,6 +1,11 @@
 const fs = require('fs');
 const {debug} = require('./utils');
-
+/**
+ * Promisified fs.readFile.
+ * @param {string} path - The path of the file we want to read.
+ * @param {Object} options - The readfile standard options object.
+ * @returns {Promise<string | Buffer>}
+ */
 let promiseReadFile = (path, options) => {
   return new Promise((resolve, reject) => {
     fs.readFile(path, options, (err, data) => {
@@ -10,10 +15,20 @@ let promiseReadFile = (path, options) => {
   });
 };
 
+/**
+ * Helper function used in testing in order to mock the readfile function
+ * @param handler - The mock readFile to use while testing.
+ */
 const initializeReadFileHandler = (handler) => {
   promiseReadFile = handler;
 };
 
+/**
+ * Async function that reads an input text file and turns it into an object with the information needed for the solution
+ * to run.
+ * @param {string} path - The path to the input file.
+ * @returns {Promise<{worldWidth: number, worldHeight: number, robots: Array, instructions: Array}>}
+ */
 async function parseInputFile(path) {
   const data = await promiseReadFile(path, {encoding: 'utf8'});
   return data.split('\n').reduce((acc, curr, index) => {
