@@ -14,20 +14,21 @@ it into an object that can be used by the rest of the application. The format of
   "instructions": "Array<Array<string> - An array that contains arrays of commands for each robot."
 }
 ```
-- [robot.js](./src/robot.js): This module contains the main functionality of the program. It exports a class that
-represents a robot and the functionality we want it to have. The robot keeps track of its state, meaning its position,
-orientation and status. It also maintains an object that maps Commands to handler functions. Each handler function
-follows a specific interface. It takes in as arguments the current state of the robot, an arbitrary input object and the
-whole robot object. It returns an updated state and a results object. The results object contains any sideffects that
-have to be applied to the environment as a result of the command. The robot also contains methods for executing single
-commands or sequences of commands.
+- [robot.js](./src/robot.js): This module contains the main functionality of the program. It exports a [class](./src/robot.js#L7)
+that represents a robot and the functionality it must have by default. The robot keeps track of its [state](./src/robot.js#L17),
+meaning its position, orientation and status. It also maintains an [object](./src/robot.js#L57) that maps commands to handler
+functions. Each handler function follows a specific interface. It takes in as arguments the current state of the robot,
+an arbitrary input object and the whole robot object. It returns an updated state and a results object. The results
+object contains any side effects that have to be applied to the environment as a result of the command. The robot also
+contains methods for executing [single commands](./src/robot.js#L131) or [sequences of commands](./src/robot.js#L143).
 - [utils.js](./src/utils.js): Contains a debug help function that logs only when the application is run with the
 environment variable `DEBUG=true`.
-- [values.js](./src/utils.js): Contains values used globally in the application, such as the available orientations,
-commands and robot statuses.
+- [values.js](./src/utils.js): Contains values used globally in the application, such as the available [Orientations](./src/values.js#5),
+[Commands](./src/values.js#16) and [Robot Statuses](./src/values.js#26).
 
 New commands can be added to the system by updating the code in [robot.commands](./src/robot.js#L57) and adding the new
-commands in the [COMMANDS](./src/values.js#L16) enumeration. 
+commands in the [COMMANDS](./src/values.js#L16) enumeration. Also, commands can be added programmatically by updating
+those objects during runtime.
 
 The solution also contains unit tests for the fileReader and robot code under [test](./test). The tests make use of
 the following libraries: 
